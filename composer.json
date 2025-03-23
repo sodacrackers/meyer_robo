@@ -1,0 +1,19 @@
+{
+  "name": "meyer/meyer-robo",
+  "type": "robo-tasks",
+  "description": "Project robo utilities.",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/sodacrackers/meyer_robo",
+  "autoload": {
+    "psr-4": {
+      "Meyer\\": "src"
+    }
+  },
+  "require": {
+    "consolidation/robo": "*",
+    "symfony/yaml": "*"
+  },
+  "bin": [
+    "meyer"
+  ]
+}
