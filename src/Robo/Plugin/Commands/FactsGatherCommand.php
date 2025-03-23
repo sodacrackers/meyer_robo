@@ -264,7 +264,7 @@ class FactsGatherCommand extends Tasks {
    *
    * @param string $name
    *   The value to save.
-   * @param string $value
+   * @param ?string $value
    *   The value to save.
    * @param string $source
    *   The value to save.
@@ -273,7 +273,7 @@ class FactsGatherCommand extends Tasks {
    *
    * @see https://github.com/uselagoon/lagoon/blob/main/services/api/database/migrations/20220908065119_initial_db.js#L116C30-L116C30
    */
-  private function appendCollection(string $name = "", string $value = NULL, string $source = "", string $category = "Custom") {
+  private function appendCollection(string $name = "", ?string $value = NULL, string $source = "", string $category = "Custom") {
     $item = [
       "name" => $this->formatValue($name, 300),
       "value" => $this->formatValue($value, 300),
@@ -390,13 +390,13 @@ class FactsGatherCommand extends Tasks {
    *
    * @param mixed $value
    *   The value to be tidied.
-   * @param int $length
+   * @param ?int $length
    *   The maximum string length.
    *
    * @return string
    *   The cleaned string.
    */
-  public function formatValue(mixed $value, int $length = NULL): string {
+  public function formatValue(mixed $value, ?int $length = NULL): string {
     if (is_string($value)) {
       $string = strip_tags($value);
     }

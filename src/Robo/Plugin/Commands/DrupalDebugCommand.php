@@ -33,40 +33,43 @@ class DrupalDebugCommand extends Tasks {
    */
   public function hello(ConsoleIO $io, $opts = ['silent|s' => FALSE]) {
     if (!$opts['silent']) {
-      $io->say("Hello, world");
+      $io->say("Hello, YOU!");
     }
   }
 
   /**
-   * Write out local Drupal debugging files. To call.
+   * Write out local Drupal debugging files.
    *
-   * @example vendor/bin/robo drupal:enable-debugging
+   * @param string $siteDir
+   *   Relative site path (e.g. "web/sites/default").
+   *
+   * @command drupal:enable-debugging
    */
-  public function enableDrupalDebugging() {
+  public function enableDrupalDebugging($siteDir = 'web/sites/default') {
+    $this->say("Enabling debugging in $siteDir");
 
-    $this->say("Enabling local debugging for Drupal.");
-    $this->say("This will write out the following files:");
-    $this->say("  - web/sites/default/services.local.yml");
-    $this->say("  - web/sites/default/settings.local.php");
-    $this->writeSettingsFile();
-    $this->updateServicesFile();
+    $this->writeSettingsFile($siteDir);
+    $this->updateServicesFile($siteDir);
 
-    // Clear caches.
-    $this->taskExec("vendor/bin/drush cr")->run();
   }
 
   /**
    *
    */
-  private function writeSettingsFile() {
-    // Prepare Drupal settings file.
-    $this->_touch('web/sites/default/settings.local.php');
-    $existing = file_get_contents("web/sites/default/settings.local.php");
+  private function writeSettingsFile($siteDir) {
+    $file = "$siteDir/settings.local.php";
 
-    // Our debug settings.
+    // Check if the file exists
+    if (!file_exists($file)) {
+      $this->_touch($file);
+      file_put_contents($file, "<?php\n");
+    }
+
+    $existing = file_get_contents($file);
+
     $lines = [
       "<?php",
-      "\$settings['container_yamls'][] = DRUPAL_ROOT . '/sites/default/services.local.yml';",
+      "\$settings['container_yamls'][] = DRUPAL_ROOT . '/$siteDir/services.local.yml';",
       "\$settings['cache']['bins']['render'] = 'cache.backend.null';",
       "\$settings['cache']['bins']['page'] = 'cache.backend.null';",
       "\$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.null';",
@@ -76,10 +79,9 @@ class DrupalDebugCommand extends Tasks {
       "\$settings['config_exclude_modules'] = ['devel', 'stage_file_proxy'];",
     ];
 
-    // Append missing settings.
     foreach ($lines as $line) {
       if (stripos($existing, $line) === FALSE) {
-        $this->taskWriteToFile("web/sites/default/settings.local.php")
+        $this->taskWriteToFile($file)
           ->append(TRUE)
           ->line($line)
           ->run();
@@ -90,26 +92,25 @@ class DrupalDebugCommand extends Tasks {
   /**
    *
    */
-  private function updateServicesFile() {
-    // Prepare debug service file.
-    $lines = Yaml::parse(<<<YML
-      parameters:
-        http.response.debug_cacheability_headers: true
-        twig.config:
-          cache: false
-          debug: true
-          auto_reload: true
-      services:
-        cache.backend.null:
-          class: Drupal\Core\Cache\NullBackendFactory
-      YML);
+  private function updateServicesFile($siteDir) {
+    $file = "$siteDir/services.local.yml";
 
-    // Merge settings.
-    $existing = Yaml::parseFile("web/sites/default/services.local.yml") ?? [];
+    $lines = Yaml::parse(<<<YML
+parameters:
+  http.response.debug_cacheability_headers: true
+  twig.config:
+    cache: false
+    debug: true
+    auto_reload: true
+services:
+  cache.backend.null:
+    class: Drupal\Core\Cache\NullBackendFactory
+YML);
+
+    $existing = file_exists($file) ? Yaml::parseFile($file) : [];
     $settings = Yaml::dump($lines + $existing);
 
-    // Write out merged settings.
-    $this->taskWriteToFile("web/sites/default/services.local.yml")
+    $this->taskWriteToFile($file)
       ->line($settings)
       ->run();
   }

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+robo --load-from "$(dirname "$0")/src/RoboFile.php" "$@"
