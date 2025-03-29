@@ -9,9 +9,10 @@ configurations, to ease servicing projects.
 
 ## ⚙️ Setup for Use Across Projects (Global Composer)
 
-Edit your global `~/.composer/composer.json` and ensure it includes this
-project:
+Edit your global `composer.json` and ensure it includes our project.
+project. You can find global config path with `composer global config home`.
 
+`composer.json`:
 ```json
 {
   "minimum-stability": "dev",
@@ -49,7 +50,7 @@ Ensure the CLI launcher is executable:
 In the root of this project, ensure the `meyer` file is marked as executable:
 
 ```bash
-chmod +x /Users/meyer/www/GitHub/meyer_robo/meyer && composer global update
+chmod +x ~/www/GitHub/meyer_robo/meyer && composer global update
 ```
 
 ## 🧪 Development Notes

@@ -3,7 +3,6 @@
 namespace Meyer\Robo\Plugin\Commands;
 
 use Robo\Tasks;
-use Robo\Symfony\ConsoleIO;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -19,7 +18,7 @@ use Symfony\Component\Yaml\Yaml;
  * RoboFile by including the --load-from option:
  * robo run --load-from /path/to/my/other/robofile
  */
-class DrupalDebugCommand extends Tasks {
+class DrupalDebugCommands extends Tasks {
 
   /**
    * Constructs the Robo Tasks for Drupal projects.
@@ -29,12 +28,61 @@ class DrupalDebugCommand extends Tasks {
   }
 
   /**
-   *
+   * @command drupal:find-sites
    */
-  public function hello(ConsoleIO $io, $opts = ['silent|s' => FALSE]) {
-    if (!$opts['silent']) {
-      $io->say("Hello, YOU!");
+  public function findSites() {
+    $cwd = getenv('PWD');
+    $this->say("Finding settings.php files...");
+    $this->say("Current directory: $cwd");
+
+    $res = $this->taskExec('find')
+      ->args([
+        $cwd,
+        '-name',
+        'settings.php',
+        '-type',
+        'f',
+        '-path',
+        '*/sites/*',
+        '-not',
+        '-path',
+        '*/core/*',
+        '-not',
+        '-path',
+        '*/modules/*',
+        '-not',
+        '-path',
+        '*/vendor/*',
+        '-not',
+        '-path',
+        '*/node_modules/*',
+      ])
+      ->printOutput(FALSE)
+      ->run();
+
+    if ($res->getExitCode() !== 0) {
+      $this->say("Error running find command.");
+      return;
     }
+
+    // This will contain the output from find.
+    $output = trim($res->getMessage());
+    if (empty($output)) {
+      $this->say("No settings.php files found.");
+      return;
+    }
+
+    // Convert to array.
+    $directories = [];
+    $files = array_filter(explode("\n", $output));
+
+    $this->say("Found " . count($files) . " settings.php files:");
+    foreach ($files as $file) {
+      $this->say(" - $file");
+      $directories[] = dirname($file);
+    }
+
+    return $directories;
   }
 
   /**
@@ -58,8 +106,10 @@ class DrupalDebugCommand extends Tasks {
    */
   private function writeSettingsFile($siteDir) {
     $file = "$siteDir/settings.local.php";
-
-    // Check if the file exists
+    // $this->taskFilesystemStack()
+    //   ->touch($file)
+    //   ->run();
+    // Check if the file exists.
     if (!file_exists($file)) {
       $this->_touch($file);
       file_put_contents($file, "<?php\n");
