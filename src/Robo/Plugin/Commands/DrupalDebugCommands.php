@@ -27,14 +27,12 @@ class DrupalDebugCommands extends Tasks {
    * @command meyer:find-drupal-sites
    */
   public function findSites() {
-    $cwd = getenv('PWD');
-    $this->say("Finding settings.php files...");
-    $this->say("Current directory: $cwd");
+    $this->say('Finding settings.php files...');
 
     $res = $this->taskExec('find')
       ->args(
               [
-                $cwd,
+                getenv('PWD'),
                 '-name',
                 'settings.php',
                 '-type',
@@ -77,21 +75,21 @@ class DrupalDebugCommands extends Tasks {
    * @command meyer:enable-drupal-debugging
    */
   public function enableDrupalDebugging() {
-    $this->say('Adding Drupal development settings.');
+    $this->io()->title("\nAdding Drupal development settings.");
     if (empty($siteDir)) {
       $directories = $this->findSites() ?: [];
 
-      $this->say("Found " . count($directories) . " settings.php files:");
+      $this->say('Found ' . count($directories) . ' settings.php files:');
       foreach ($directories as $i => $dir) {
         $this->say("  [$i] $dir");
       }
-      $this->say("  [all] Apply to all directories");
+      $this->say('  [all] Apply to all directories');
 
       $choice = $this->ask('Please select a site directory (0-' . (count($directories) - 1) . ' or "all"):');
 
       if ($choice === 'all') {
         foreach ($directories as $dir) {
-          $this->say("Enabling debugging in $dir");
+          $this->io()->title("\nEnabling debugging in $dir");
           $this->writeSettingsFile($dir);
           $this->updateServicesFile($dir);
         }
@@ -102,11 +100,11 @@ class DrupalDebugCommands extends Tasks {
     }
 
     if (empty($siteDir)) {
-      $this->yell("Invalid selection.");
+      $this->yell('Invalid selection.');
       return;
     }
 
-    $this->say("Enabling debugging in $siteDir");
+    $this->say('Enabling debugging in ' . $siteDir);
     $this->writeSettingsFile($siteDir);
     $this->updateServicesFile($siteDir);
   }
@@ -120,9 +118,10 @@ class DrupalDebugCommands extends Tasks {
    * @command meyer:write-settings
    */
   private function writeSettingsFile($siteDir) {
-    $file = "$siteDir/settings.local.php";
-    $this->taskFilesystemStack()
-      ->touch($file)
+    $file = $siteDir . '/settings.local.php';
+    $this->taskExec('touch')
+      ->args($file)
+      ->printOutput(FALSE)
       ->run();
 
     $existing = file_get_contents($file);
@@ -158,9 +157,10 @@ class DrupalDebugCommands extends Tasks {
    * @command meyer:write-services
    */
   private function updateServicesFile($siteDir) {
-    $file = "$siteDir/services.local.yml";
-    $this->taskFilesystemStack()
-      ->touch($file)
+    $file = $siteDir . '/services.local.yml';
+    $this->taskExec('touch')
+      ->args($file)
+      ->printOutput(FALSE)
       ->run();
 
     $lines = Yaml::parse(
