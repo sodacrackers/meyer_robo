@@ -2,61 +2,75 @@
 
 Global Robo commands for Drupal projects.
 
-This provides utility commands to simplify development workflows. The primary
-command is `meyer drupal:enable-debugging [site-directory]`. The command writes
-out `settings.local.php` and `services.local.yml` files with standard debugging
-configurations, to ease servicing projects.
+This utility provides Robo commands to simplify Drupal development tasks, such as enabling debugging configurations for Drupal sites. The primary command provided by this utility is `robo meyer:enable-drupal-debugging`, which generates a `settings.local.php` and `services.local.yml` with standard debugging configurations, making it easier to service Drupal projects.
 
-## ⚙️ Setup for Use Across Projects (Global Composer)
 
-Edit your global `composer.json` and ensure it includes our project.
-project. You can find global config path with `composer global config home`.
+For more about Robo, see:
 
-`composer.json`:
-```json
-{
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "require": {
-    "meyer/meyer-robo": "*"
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "/Users/meyer/www/GitHub/meyer_robo",
-      "options": {
-        "symlink": true
-      }
-    }
-  ]
-}
-```
+- [Robo Documentation](https://robo.li/)
 
-Then update your Composer global:
+## ⚙️ Setup for Global Use (Global Composer)
+
+To use this utility globally across projects, follow these steps:
+
+1. Edit your global `composer.json` file to include this project. You can find the global Composer configuration path by running:
+
+   ```bash
+   composer global config home
+   ```
+
+   Add the following configuration to your `composer.json`:
+
+   ```json
+   {
+     "minimum-stability": "dev",
+     "prefer-stable": true,
+     "repositories": [
+       {
+         "type": "path",
+         "url": "/Users/meyer/www/GitHub/meyer_robo",
+         "options": {
+           "symlink": true
+         }
+       }
+     ]
+   }
+   ```
+
+2. Update your global Composer installation:
+
+   ```bash
+   composer global update && composer global require "meyer/meyer-robo"
+   ```
+
+3. Confirm that the `robo` command is available:
+
+   ```bash
+   which robo
+   # Expected output: /Users/.../.composer/vendor/bin/robo
+   ```
+
+4. Verify that the `meyer:...` commands are listed:
+
+   ```bash
+   robo list
+   ```
+
+## Commands Overview
+
+### `meyer:enable-drupal-debugging`
+
+This command enables debugging for a specified Drupal site directory or all detected site directories. It creates or updates the following files:
+
+- `settings.local.php`: Configures debugging settings for the site.
+- `services.local.yml`: Configures service overrides for debugging.
+
+### `meyer:find-drupal-sites`
+
+This command scans the current directory for Drupal site directories containing `settings.php` files. It excludes common directories like `core`, `modules`, `vendor`, and `node_modules`.
+
+For more details on available commands, run:
 
 ```bash
-composer global update
+robo list
 ```
-
-Confirm the `meyer` command is available:
-
-```bash
-which meyer
-# Should return: /Users/meyer/.composer/vendor/bin/meyer
-```
-
-Ensure the CLI launcher is executable:
-
-In the root of this project, ensure the `meyer` file is marked as executable:
-
-```bash
-chmod +x ~/www/GitHub/meyer_robo/meyer && composer global update
-```
-
-## 🧪 Development Notes
-
-Changes made in this project will reflect immediately in your global environment (because of the `symlink: true` option).
-
-This approach keeps the command globally available while allowing for active local development.
-
-Requires Robo (`consolidation/robo`) and Symfony YAML (`symfony/yaml`), already included in `composer.json`.
