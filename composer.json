@@ -10,10 +10,7 @@
     }
   },
   "require": {
-    "consolidation/robo": "*",
+    "consolidation/robo": "^5.0",
     "symfony/yaml": "*"
-  },
-  "bin": [
-    "meyer"
-  ]
+  }
 }
