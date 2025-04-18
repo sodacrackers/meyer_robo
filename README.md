@@ -2,24 +2,20 @@
 
 Global Robo commands for Drupal projects.
 
-This utility provides Robo commands to simplify Drupal development tasks, such as enabling debugging configurations for Drupal sites. The primary command provided by this utility is `robo meyer:enable-drupal-debugging`, which generates a `settings.local.php` and `services.local.yml` with standard debugging configurations, making it easier to service Drupal projects.
+This utility provides Robo commands to simplify Drupal development, such as enabling debugging for Drupal sites. The primary command is `robo meyer:enable-drupal-debugging`, which generates a `settings.local.php` and `services.local.yml` with standard dev configurations, making it easier to service projects.
 
 
-For more about Robo, see:
+For more on Robo, see:
 
 - [Robo Documentation](https://robo.li/)
 
 ## ⚙️ Setup for Global Use (Global Composer)
 
-To use this utility globally across projects, follow these steps:
+To use this utility globally, across projects, follow these steps:
 
-1. Edit your global `composer.json` file to include this project. You can find the global Composer configuration path by running:
+1. Edit your global `composer.json` file to include this repo. Find the global config path by running `composer global config home`
 
-   ```bash
-   composer global config home
-   ```
-
-   Add the following configuration to your `composer.json`:
+   Add the following to your `composer.json`:
 
    ```json
    {
@@ -28,7 +24,7 @@ To use this utility globally across projects, follow these steps:
      "repositories": [
        {
          "type": "path",
-         "url": "/Users/meyer/www/GitHub/meyer_robo",
+         "url": "/....path..to...repo/meyer/meyer_robo",
          "options": {
            "symlink": true
          }
